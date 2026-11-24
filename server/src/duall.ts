@@ -6,6 +6,9 @@ import { withRevitConnection } from "./utils/ConnectionManager.js";
 import { exportarIFC } from "./duall/exportar-ifc.js";
 import { consultaMEP } from "./duall/consulta.js";
 
+import { registerProduction } from "./duall/producao.js";
+import { registerAcc } from "./duall/acc.js";
+
 const server = new McpServer({ name: "duall-revit-mep", version: "1.0.0" });
 const filtros = {
   disciplina: z.enum(["todas", "eletrica", "hidraulica", "spk", "incendio", "revisar"]).default("todas"),
@@ -58,4 +61,6 @@ server.tool("duall_exportar_ifc", "Exporte o documento ativo para um novo arquiv
   }
 });
 
+registerProduction(server);
+registerAcc(server);
 await server.connect(new StdioServerTransport());

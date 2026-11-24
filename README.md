@@ -18,8 +18,8 @@ npm run build
 gemini mcp add --scope user duall-revit node (Resolve-Path .\build\duall.js).Path
 ```
 
-3. Abra um projeto no Revit. Nas configurações do add-in habilite `send_code_to_revit`, salve e ligue a conexão na faixa de opções. O servidor usa TCP local na porta 8080.
-4. No mesmo Windows, execute `gemini` e confira as três ferramentas com `/mcp`. A autenticação é a habitual do Gemini CLI.
+3. Abra um projeto no Revit. Nas configurações do add-in habilite `duall_producao` e `send_code_to_revit`, salve e ligue a conexão na faixa de opções. O servidor usa TCP local na porta 8080.
+4. No mesmo Windows, execute `gemini` e confira as ferramentas Duall com `/mcp`. A autenticação é a habitual do Gemini CLI.
 
 ## Pedidos para o Gemini
 
@@ -34,17 +34,21 @@ As consultas leem instâncias no documento ativo, excluindo modelos vinculados. 
 
 O parâmetro textual `E3-Disciplina` na instância ou no tipo tem prioridade quando seu valor é reconhecido. Na ausência de marca reconhecida, a consulta usa categorias nativas e classificação de sistema de tubulação. Bicos de sprinkler entram em SPK. Tubos de sistemas de proteção entram em incêndio, salvo marca explícita SPK. Equipamentos mecânicos e acessórios ambíguos aparecem em `revisar`. Famílias modeladas como modelos genéricos ficam fora da coleta. A consulta não verifica dimensionamento, cobertura, circuitos ou conformidade normativa.
 
-O perfil expõe duas consultas e uma ferramenta de exportação IFC. As três executam um trecho C# fixo do repositório, passando filtros como dados. O servidor genérico original continua disponível em outro ponto de entrada. [Documentação original e créditos](README-upstream.md).
+## Produção no Revit 2027
 
-## Fluxos do perfil Duall
+Instale o pacote desta revisão e habilite ambos os comandos nas configurações do add-in. No Gemini CLI use o BEP como contexto (por exemplo, anexe um PDF legível) e informe os caminhos Windows do RTE, dos vínculos e do RVT de saída. O Gemini traduz o BEP em campos estruturados. Para regras de uma obra que o esquema não represente, peça ao Gemini uma lista de requisitos pendentes.
 
-| Fluxo | Escopo implementado |
+| Pedido no Gemini | Resultado e entrada |
 |---|---|
-| Inventário e quantitativos | Lista e agrupa os elementos das categorias MEP atendidas no documento ativo. |
-| IFC de envio | `duall_exportar_ifc` grava IFC4 ou IFC2x3 em pasta existente, com vista 3D opcional. Revisão de coordenadas, Psets, nomenclatura e validação do BEP continuam com a coordenação. |
-| BEP para RVT | Sem importação de BEP, criação de RVT ou configuração de vínculos. |
-| Comentários de cliente | É possível consultar elementos para investigar pendências. Sem sincronização de issues do ACC/BCF ou aplicação automática de correções. |
-| Furação para markup | Sem detecção de interferências com estrutura vinculada, inserção de família FURO ou emissão de markup. |
-| Lançamento MEP | As ferramentas do perfil consultam o que foi modelado. O perfil não posiciona pontos nem roteia redes. |
+| “Use este BEP para iniciar o RVT pelo nosso RTE.” | Cria novo RVT com níveis, plantas opcionais por tipo do template, vínculos RVT locais por origem ou coordenadas compartilhadas, posição do projeto e informações textuais. O destino precisa estar livre. |
+| “Lance esses pontos com as famílias do template.” | Consulte o catálogo de famílias, níveis e vínculos. Coordenadas XYZ são metros a partir da origem interna. Para hospedagem em face, consulte as faces próximas e use a referência e direção retornadas. |
+| “Modele esse caminho como rede SPK.” | Selecione tipo de tubo, sistema, nível, diâmetro e vértices. Suporta eletrodutos e eletrocalhas, cotas de caimento, conexões entre trechos e conexão a terminais coincidentes. O traçado e as dimensões vêm do projeto. |
+| “Marque as travessias desses trechos no vínculo estrutural.” | Cruza os eixos com sólidos de vigas, pilares, paredes e pisos. Insere família FURO não hospedada no modelo de instalações, registra IDs e cria ou atualiza vista 3D para markup. A família pode receber profundidade e diâmetro com folga radial. A estrutura valida as reservas. |
+| “Atenda esta pendência do cliente.” | Lê BCF 2.1 ou issues ACC. Mova instâncias ou edite seus parâmetros por ID. A resposta ao BCF gera outro arquivo. No ACC, responder e alterar o status são ações explícitas e separadas. |
+| “Exporte a vista de entrega em IFC4.” | Indique documento, pasta, nome e ID da vista 3D. Revise o IFC produzido conforme o BEP. |
 
-**Teste de aceitação no Revit 2027.** Abra uma cópia de projeto, ligue o serviço, consulte um nível conhecido e compare o resultado a uma tabela do Revit com os mesmos filtros. Exporte uma vista 3D conhecida e abra o IFC em um visualizador para conferir escopo, níveis e coordenadas. O build do add-in e a homologação no Revit são verificações distintas.
+Para alterar o modelo ativo, as ferramentas começam em simulação. A resposta indica se o Revit reverteu o ensaio. Aplique com `simular=false` e uma `operacaoId` única por lançamento. Repetir a mesma operação aplicada devolve o resultado registrado no RVT. Os IDs criados na simulação são provisórios.
+
+A integração ACC usa `APS_ACCESS_TOKEN` no ambiente do servidor MCP, com acesso ao projeto, permissões de leitura/escrita para a operação e token válido. O servidor faz chamadas ao projeto indicado. Renovação do token fica a cargo da integração APS da empresa.
+
+**Aceite na obra piloto.** Use uma cópia do template e o vínculo estrutural real. Confira níveis e coordenadas, experimente uma família hospedada, conecte uma rede com curva, revise o marcador FURO em corte e reabra o IFC no visualizador da coordenação.

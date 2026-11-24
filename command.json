@@ -9,6 +9,11 @@
   },
   "commands": [
     {
+      "commandName": "duall_producao",
+      "description": "Produção MEP Duall para Revit 2027",
+      "assemblyPath": "RevitMCPCommandSet.dll"
+    },
+    {
       "commandName": "say_hello",
       "description": "Displays a greeting dialog",
       "assemblyPath": "RevitMCPCommandSet.dll"

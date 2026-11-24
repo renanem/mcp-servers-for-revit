@@ -20,6 +20,7 @@ export class RevitClientConnection {
       this.isConnected = true;
     });
 
+    this.socket.setEncoding("utf8");
     this.socket.on("data", (data) => {
       // 将接收到的数据添加到缓冲区
       const dataString = data.toString();

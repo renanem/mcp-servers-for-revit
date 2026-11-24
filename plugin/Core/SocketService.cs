@@ -102,7 +102,7 @@ namespace revit_mcp_plugin.Core
             try
             {
                 _isRunning = true;
-                _listener = new TcpListener(IPAddress.Any, _port);
+                _listener = new TcpListener(IPAddress.Loopback, _port);
                 _listener.Start();
 
                 _listenerThread = new Thread(ListenForClients)
@@ -171,36 +171,12 @@ namespace revit_mcp_plugin.Core
 
             try
             {
-                byte[] buffer = new byte[8192];
-
-                while (_isRunning && tcpClient.Connected)
+                using (var input = new StreamReader(stream, new UTF8Encoding(false, true), false, 4096, true))
+                using (var reader = new JsonTextReader(input) { SupportMultipleContent = true, DateParseHandling = DateParseHandling.None })
+                while (_isRunning && reader.Read())
                 {
-                    // 读取客户端消息
-                    // Read client messages.
-                    int bytesRead = 0;
-
-                    try
-                    {
-                        bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    }
-                    catch (IOException)
-                    {
-                        // 客户端断开连接
-                        // Client disconnected.
-                        break;
-                    }
-
-                    if (bytesRead == 0)
-                    {
-                        // 客户端断开连接
-                        // Client disconnected.
-                        break;
-                    }
-
-                    string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    System.Diagnostics.Trace.WriteLine($"收到消息: {message}\nReceived message: {message}");
-
-                    string response = ProcessJsonRPCRequest(message);
+                    var message = JObject.Load(reader);
+                    string response = ProcessJsonRPCRequest(message.ToString(Formatting.None));
 
                     // 发送响应
                     // Send response.

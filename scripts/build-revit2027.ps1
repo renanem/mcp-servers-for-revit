@@ -17,18 +17,7 @@ try {
 '@ | Set-Content "$probe/ApiProbe.csproj"
         foreach ($name in @('consulta', 'exportar-ifc')) {
             $snippet = Get-Content -Raw "server/src/duall/$name.ts"
-            if ($snippet -notmatch '(?s)String\.raw`(.+)`;\s*'plugin/bin/AddIn 2027 Release R27'
-    $plugin = 'revit_mcp_plugin'
-    $commands = "$plugin/Commands/RevitMCPCommandSet"
-    foreach ($file in @('mcp-servers-for-revit.addin', "$plugin/RevitMCPPlugin.dll", "$commands/command.json", "$commands/2027/RevitMCPCommandSet.dll", "$commands/2027/Microsoft.CodeAnalysis.CSharp.dll")) {
-        if (!(Test-Path "$source/$file" -PathType Leaf)) { throw "Ausente no pacote: $file" }
-    }
-    Compress-Archive -Path "$source/*" -DestinationPath 'Duall-Revit2027.zip' -Force
-    Write-Host "Pacote criado: $PWD/Duall-Revit2027.zip"
-} finally {
-    Pop-Location
-}
-) { throw "Corpo C# ausente em $name" }
+            if ($snippet -notmatch '(?s)String\.raw`(.+)`;\s*$') { throw "Corpo C# ausente em $name" }
             $class = $name.Replace('-', '_')
             "using System; using System.Linq; using System.Collections.Generic; using Autodesk.Revit.DB; public static class $class { public static object Execute(Document document, object[] parameters) { $($Matches[1]) } }" | Set-Content "$probe/$class.cs"
         }

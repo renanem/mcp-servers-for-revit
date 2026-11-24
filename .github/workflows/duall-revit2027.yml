@@ -1,0 +1,28 @@
+name: Duall Revit 2027
+on:
+  push:
+    branches: [duall/gemini-mep, main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+        working-directory: server
+      - run: npm run build
+        working-directory: server
+      - run: ./scripts/build-revit2027.ps1
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Duall-Revit2027
+          path: Duall-Revit2027.zip

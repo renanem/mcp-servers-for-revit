@@ -201,12 +201,15 @@ public static class GeometryUtils
     /// <returns>Intersection point or null if none</returns>
     public static XYZ FindIntersection(Line line1, Line line2)
     {
-        // Implement algorithm to calculate intersection
-        // Simple method: use Revit API to find intersection
+#if REVIT2027_OR_GREATER
+        using var result = line1.Intersect(line2, CurveIntersectResultOption.Detailed);
+        return result.Result == SetComparisonResult.Overlap ? result.GetOverlaps().FirstOrDefault()?.Point : null;
+#else
         var results = new IntersectionResultArray();
         if (line1.Intersect(line2, out results) == SetComparisonResult.Overlap && results.Size > 0)
             return results.get_Item(0).XYZPoint;
         return null;
+#endif
     }
 
     /// <summary>

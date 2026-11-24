@@ -47,7 +47,7 @@
         <RevitVersion>2027</RevitVersion>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
-        <DefineConstants>$(DefineConstants);REVIT2022_OR_GREATER;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER</DefineConstants>
+        <DefineConstants>$(DefineConstants);REVIT2022_OR_GREATER;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2027_OR_GREATER</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup>

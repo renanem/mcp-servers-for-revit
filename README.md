@@ -36,14 +36,14 @@ O parâmetro textual `E3-Disciplina` na instância ou no tipo tem prioridade qua
 
 ## Produção no Revit 2027
 
-Instale o pacote desta revisão e habilite ambos os comandos nas configurações do add-in. No Gemini CLI use o BEP como contexto (por exemplo, anexe um PDF legível) e informe os caminhos Windows do RTE, dos vínculos e do RVT de saída. O Gemini traduz o BEP em campos estruturados. Para regras de uma obra que o esquema não represente, peça ao Gemini uma lista de requisitos pendentes.
+Instale o pacote desta revisão e habilite ambos os comandos nas configurações do add-in. No Gemini CLI indique o caminho de um BEP PDF, TXT ou MD de até 12 MiB para duall_ler_bep e informe os caminhos Windows do RTE, dos vínculos e do RVT de saída. O Gemini traduz o BEP em campos estruturados. Para regras de uma obra que o esquema não represente, peça ao Gemini uma lista de requisitos pendentes.
 
 | Pedido no Gemini | Resultado e entrada |
 |---|---|
-| “Use este BEP para iniciar o RVT pelo nosso RTE.” | Cria novo RVT com níveis, plantas opcionais por tipo do template, vínculos RVT locais por origem ou coordenadas compartilhadas, posição do projeto e informações textuais. O destino precisa estar livre. |
+| “Use este BEP para iniciar o RVT pelo nosso RTE.” | Cria novo RVT com níveis, plantas opcionais por tipo do template, vínculos RVT locais por origem ou coordenadas compartilhadas, posição do projeto e informações textuais. Aceita definições de parâmetros compartilhados com grupo, categorias e escopo de instância ou tipo. O destino precisa estar livre. |
 | “Lance esses pontos com as famílias do template.” | Consulte o catálogo de famílias, níveis e vínculos. Coordenadas XYZ são metros a partir da origem interna. Para hospedagem em face, consulte as faces próximas e use a referência e direção retornadas. |
 | “Modele esse caminho como rede SPK.” | Selecione tipo de tubo, sistema, nível, diâmetro e vértices. Suporta eletrodutos e eletrocalhas, cotas de caimento, conexões entre trechos e conexão a terminais coincidentes. O traçado e as dimensões vêm do projeto. |
-| “Marque as travessias desses trechos no vínculo estrutural.” | Cruza os eixos com sólidos de vigas, pilares, paredes e pisos. Insere família FURO não hospedada no modelo de instalações, registra IDs e cria ou atualiza vista 3D para markup. A família pode receber profundidade e diâmetro com folga radial. A estrutura valida as reservas. |
+| “Marque as travessias desses trechos no vínculo estrutural.” | Cruza os eixos com sólidos de vigas, pilares, paredes e pisos. Insere família FURO não hospedada no modelo de instalações, registra IDs e cria ou atualiza vista 3D para markup. A família pode receber profundidade e diâmetro com folga radial. A vista pode ser exportada em PDF de markup. A estrutura valida as reservas. |
 | “Atenda esta pendência do cliente.” | Lê BCF 2.1 ou issues ACC. Mova instâncias ou edite seus parâmetros por ID. A resposta ao BCF gera outro arquivo. No ACC, responder e alterar o status são ações explícitas e separadas. |
 | “Exporte a vista de entrega em IFC4.” | Indique documento, pasta, nome e ID da vista 3D. Revise o IFC produzido conforme o BEP. |
 

@@ -25,6 +25,12 @@ internal static partial class ModelOps
         try {
             using(var t=new Transaction(d,"Aplicar BEP Duall")) {
                 t.Start();
+                foreach(var item in ((JArray)p["familias"] ?? new JArray()).Values<string>()) {
+                    if(!Path.IsPathFullyQualified(item) || !File.Exists(item) || !item.EndsWith(".rfa",StringComparison.OrdinalIgnoreCase))
+                        throw new ArgumentException("Arquivo RFA ausente: "+item);
+                    if(!All<Family>(d).Any(x=>x.Name==Path.GetFileNameWithoutExtension(item)) && !d.LoadFamily(item,out var loadedFamily))
+                        throw new ArgumentException("Falha ao carregar família "+item);
+                }
                 foreach(var item in (JArray)p["niveis"]) {
                     var name=S(item,"nome");
                     var height=Feet((double)item["elevacaoM"]);
@@ -32,7 +38,7 @@ internal static partial class ModelOps
                     if(level==null) { level=Level.Create(d,height);level.Name=name; }
                     else if(Math.Abs(level.ProjectElevation-height)>1e-6) throw new ArgumentException("Nível do template com cota divergente: "+name);
                     if(item["planta"]!=null) {
-                        var vt=All<ViewFamilyType>(d).Single(x=>x.Name==S(item,"planta") && (x.ViewFamily==ViewFamily.FloorPlan || x.ViewFamily==ViewFamily.CeilingPlan || x.ViewFamily==ViewFamily.EngineeringPlan));
+                        var vt=All<ViewFamilyType>(d).Single(x=>x.Name==S(item,"planta") && (x.ViewFamily==ViewFamily.FloorPlan || x.ViewFamily==ViewFamily.CeilingPlan || x.ViewFamily==ViewFamily.StructuralPlan));
                         if(!All<ViewPlan>(d).Any(v=>v.GenLevel?.Id==level.Id && v.GetTypeId()==vt.Id)) ViewPlan.Create(d,vt.Id,level.Id);
                     }
                 }
@@ -46,6 +52,7 @@ internal static partial class ModelOps
                     if(!RevitLinkType.IsLoaded(d,loaded.ElementId)) throw new IOException("Falha ao carregar vínculo: "+path);
                     RevitLinkInstance.Create(d,loaded.ElementId,S(item,"posicao")=="compartilhada"?ImportPlacement.Shared:ImportPlacement.Origin);
                 }
+                BindParameters(ui.Application,d,p);
                 foreach(var prop in ((JObject)p["informacoes"]).Properties()) {
                     var pars=d.ProjectInformation.GetParameters(prop.Name);
                     if(pars.Count!=1 || pars[0].IsReadOnly || pars[0].StorageType!=StorageType.String || !pars[0].Set((string)prop.Value))

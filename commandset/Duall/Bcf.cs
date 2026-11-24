@@ -1,4 +1,5 @@
 #if REVIT2027_OR_GREATER
+using Autodesk.Revit.DB;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
@@ -8,6 +9,24 @@ using Newtonsoft.Json.Linq;
 namespace RevitMCPCommandSet.Duall;
 internal static partial class ModelOps
 {
+    static string IfcGuid(Guid guid) {
+        const string chars="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$";
+        var value=new System.Numerics.BigInteger(guid.ToByteArray(true),true,true);
+        char[] result=new char[22];
+        for(int i=21;i>=0;i--) { result[i]=chars[(int)(value%64)];value/=64; }
+        return new string(result);
+    }
+    static object ResolveIssue(Document d,JObject p) {
+        var ids=((JArray)p["ifcGuids"]).Values<string>().ToHashSet(StringComparer.Ordinal);
+        var found=new List<object>();
+        foreach(var e in new FilteredElementCollector(d).WhereElementIsNotElementType()) {
+            var saved=e.get_Parameter(BuiltInParameter.IFC_GUID)?.AsString();
+            if(string.IsNullOrEmpty(saved))saved=IfcGuid(ExportUtils.GetExportId(d,e.Id));
+            if(ids.Contains(saved))found.Add(new { id=Key(e),ifcGuid=saved,categoria=e.Category?.Name });
+        }
+        return found;
+    }
+
     static XDocument Xml(ZipArchiveEntry entry) {
         using var stream=entry.Open();
         using var reader=XmlReader.Create(stream,new XmlReaderSettings { DtdProcessing=DtdProcessing.Prohibit,XmlResolver=null,MaxCharactersInDocument=8000000 });

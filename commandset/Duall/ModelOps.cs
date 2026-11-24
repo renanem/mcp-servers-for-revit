@@ -28,6 +28,8 @@ internal static partial class ModelOps
         var d = app.ActiveUIDocument?.Document ?? throw new InvalidOperationException("Abra o modelo.");
         if (op == "catalogo") return Catalog(d, p);
         if (S(p, "documento") != d.Title) throw new InvalidOperationException("O documento ativo mudou.");
+        if(op=="resolver") return ResolveIssue(d,p);
+        if(op=="markup") return Markup(d,p);
         if(op=="faces") return HostFaces(d,p);
         if ((bool?)p["simular"] != true && Prior(d,p) is object previous) return previous;
         using var t = new Transaction(d, "Duall · " + op);
